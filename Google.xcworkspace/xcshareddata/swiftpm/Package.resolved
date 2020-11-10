@@ -1,0 +1,79 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "API",
+        "repositoryURL": "https://github.com/vmanot/API.git",
+        "state": {
+          "branch": "master",
+          "revision": "46757462d81970e976b13d1191e9d551cf1a0f4c",
+          "version": null
+        }
+      },
+      {
+        "package": "GoogleAPIClientForREST",
+        "repositoryURL": "https://github.com/google/google-api-objectivec-client-for-rest/",
+        "state": {
+          "branch": "master",
+          "revision": "987fa0b617b7977bf6eb98196ab5e57d8862c71a",
+          "version": null
+        }
+      },
+      {
+        "package": "GTMSessionFetcher",
+        "repositoryURL": "https://github.com/google/gtm-session-fetcher.git",
+        "state": {
+          "branch": null,
+          "revision": "1d4ef59335abfccee6150ca5c9b436c17c801fa9",
+          "version": "1.4.0"
+        }
+      },
+      {
+        "package": "Merge",
+        "repositoryURL": "https://github.com/vmanot/Merge.git",
+        "state": {
+          "branch": "master",
+          "revision": "0ce09d95f4489109d49325d8f62c0e4992fc38e2",
+          "version": null
+        }
+      },
+      {
+        "package": "NetworkKit",
+        "repositoryURL": "git@github.com:vmanot/NetworkKit.git",
+        "state": {
+          "branch": "master",
+          "revision": "38d18d0d8fbedfc4b66b9750062319ae51ff6ddb",
+          "version": null
+        }
+      },
+      {
+        "package": "Swallow",
+        "repositoryURL": "https://github.com/vmanot/Swallow.git",
+        "state": {
+          "branch": "master",
+          "revision": "711143db10e605261776faf1cc5f9311340cbadf",
+          "version": null
+        }
+      },
+      {
+        "package": "SwiftUIX",
+        "repositoryURL": "https://github.com/SwiftUIX/SwiftUIX.git",
+        "state": {
+          "branch": "master",
+          "revision": "3dc055233d29e43b1b78399e13894c3cb1053096",
+          "version": null
+        }
+      },
+      {
+        "package": "Task",
+        "repositoryURL": "https://github.com/vmanot/Task.git",
+        "state": {
+          "branch": "master",
+          "revision": "83f7c99b371a0397bec89c303f2377a8a928eeff",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
