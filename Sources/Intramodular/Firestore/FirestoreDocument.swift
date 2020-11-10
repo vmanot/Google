@@ -24,6 +24,16 @@ public struct FirestoreDocument: Hashable {
 }
 
 extension FirestoreDocument {
+    var allFlattenedKeys: [String] {
+        return fields.flatMap { pair -> [String] in
+            if case .mapValue(let map) = pair.value {
+                return map.flattenFieldKeys(prefix: pair.key)
+            } else {
+                return [pair.key]
+            }
+        }
+    }
+    
     public indirect enum Value: Codable, Hashable {
         enum CodingKeys: CodingKey {
             case nullValue
@@ -140,7 +150,7 @@ extension FirestoreDocument {
             self.fields = fields
         }
         
-        func flattenFieldKeys(prefix: String = "") -> [String] {
+        func flattenFieldKeys(prefix: String) -> [String] {
             return fields?.flatMap { pair -> [String] in
                 if case .mapValue(let map) = pair.value {
                     return map.flattenFieldKeys(prefix: pair.key)
@@ -152,7 +162,7 @@ extension FirestoreDocument {
     }
 }
 
-fileprivate extension FirestoreDocument {
+extension FirestoreDocument {
     private enum DecodeError: Error {
         case invalidDate(date: String, format: String, key: CodingKeys)
         case unsupportedValueType

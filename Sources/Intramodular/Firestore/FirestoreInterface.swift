@@ -12,8 +12,8 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
         URL(string: "https://firestore.googleapis.com/v1/projects/\(projectID)")!
     }
     
-    let token: GoogleServiceTokenProvider.Token?
-    let projectID: String
+    public let token: GoogleServiceTokenProvider.Token?
+    public let projectID: String
     
     public var id: some Hashable {
         ManyHashable(token, projectID)
@@ -32,7 +32,9 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     public var listCollections = Endpoint<String, Schema.CollectionList>()
     
     @GET
-    @Path({ "databases/(default)/documents/\($1.name?.dropPrefixIfPresent("projects/\($0.projectID)/databases/(default)/documents/") ?? ""):listCollectionIds" })
+    @Path({ root, input in
+        "databases/(default)/documents/\(input.name?.dropPrefixIfPresent("projects/\(root.projectID)/databases/(default)/documents/") ?? ""):listCollectionIds"
+    })
     public var listCollectionsInDocument = Endpoint<FirestoreDocument, Schema.CollectionList>()
     
     @GET
@@ -42,6 +44,18 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     @GET
     @Path("locations")
     public var listLocations = Endpoint<Void, Schema.LocationList>()
+    
+    @PATCH
+    @Path({ "databases/(default)/documents/\($0.document.title)" })
+    @Query(\.options.asQueryString)
+    @Body(json: \.document)
+    public var patchDocument = Endpoint<(document: FirestoreDocument, options: FirestorePatchDocumentOptions), Schema.LocationList>()
+    
+    @PATCH
+    @AbsolutePath({ "https://firestore.googleapis.com/v1/\($0.location)" })
+    @Query(\.options.asQueryString)
+    @Body(json: \.document)
+    public var patchDocumentByLocation = Endpoint<(location: String, document: FirestoreDocument, options: FirestorePatchDocumentOptions), Schema.LocationList>()
 }
 
 extension FirestoreInterface.Schema {
@@ -73,9 +87,14 @@ extension FirestoreInterface {
             from input: Input,
             context: BuildRequestContext
         ) throws -> HTTPRequest {
-            try super.buildRequestBase(from: input, context: context)
-                .header(.authorization(.bearer, try (context.root.token?.accessToken).unwrap()))
-                .header(.contentType(.json))
+            if let token = context.root.token?.accessToken {
+                return try super.buildRequestBase(from: input, context: context)
+                    .header(.authorization(.bearer, token))
+                    .header(.contentType(.json))
+            } else {
+                return try super.buildRequestBase(from: input, context: context)
+                    .header(.contentType(.json))
+            }
         }
         
         override public func decodeOutput(
@@ -83,7 +102,7 @@ extension FirestoreInterface {
             context: DecodeOutputContext
         ) throws -> Output {
             try response.validate()
-            
+
             return try response.decodeJSON(Output.self)
         }
     }

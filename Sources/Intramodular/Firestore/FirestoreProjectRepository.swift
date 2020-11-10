@@ -46,4 +46,12 @@ extension FirestoreProjectRepository {
     public func collectionList(for document: FirestoreDocument) -> AnyRepositoryResource<FirestoreProjectRepository, FirestoreInterface.Schema.CollectionList> {
         .init(RESTfulResource(repository: self, get: \.listCollectionsInDocument, from: document))
     }
+    
+    public func patch(_ document: FirestoreDocument) -> some Task {
+        run(\.patchDocument, with: (document, .init(updateMask: .allFieldKeys(of: document))))
+    }
+    
+    public func patch(_ document: FirestoreDocument, at location: String) -> some Task {
+        run(\.patchDocumentByLocation, with: (location, document, .init(updateMask: .allFieldKeys(of: document))))
+    }
 }

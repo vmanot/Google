@@ -33,6 +33,10 @@ public struct FirestoreDocumentList: View {
                 destination: VStack {
                     FirestoreDocumentFieldView(document: document)
                     
+                    Button("Patch") {
+                        data.repository.patch(.init(fields: ["calories": .integerValue("20")]), at: document.name!)
+                    }
+                    
                     FirestoreCollectionList(data.repository.collectionList(for: document))
                 }
             ) {
