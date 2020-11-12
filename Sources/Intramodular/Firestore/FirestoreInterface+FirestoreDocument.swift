@@ -5,7 +5,7 @@
 import NetworkKit
 import Swallow
 
-public struct FirestorePatchDocumentOptions {
+public struct FirestorePatchDocumentOptions: Hashable {
     public var updateMask: FirestoreDocumentMask
     public var mask: FirestoreDocumentMask?
     public var currentDocument: FirestoreDocumentPrecondition?
@@ -31,12 +31,8 @@ public struct FirestorePatchDocumentOptions {
     }
 }
 
-public struct FirestoreDocumentMask: Encodable {
+public struct FirestoreDocumentMask: Codable, Hashable {
     public let fieldPaths: [String]
-    
-    public static func allFieldKeys(of document: FirestoreDocument) -> FirestoreDocumentMask {
-        return FirestoreDocumentMask(fieldPaths: document.allFlattenedKeys)
-    }
     
     func asJsonString() -> String {
         let jsonData = try? JSONEncoder().encode(self)
@@ -49,9 +45,13 @@ public struct FirestoreDocumentMask: Encodable {
     public var asQueryString: String {
         return "mask=\(asJsonString())"
     }
+    
+    public static func allFieldKeys(of document: FirestoreDocument) -> FirestoreDocumentMask {
+        return FirestoreDocumentMask(fieldPaths: document.allFlattenedKeys)
+    }
 }
 
-public enum FirestoreDocumentPrecondition {
+public enum FirestoreDocumentPrecondition: Hashable {
     case exists(Bool)
     case updateTime(Date)
     

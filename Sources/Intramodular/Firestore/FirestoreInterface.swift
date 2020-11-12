@@ -9,11 +9,11 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     public struct Schema { }
     
     public var host: URL {
-        URL(string: "https://firestore.googleapis.com")!
+        URL(string: "https://firestore.googleapis.com/\(version)")!
     }
     
     public var baseURL: URL {
-        host.appendingPathComponent("\(version)/projects/\(projectID)")
+        host.appendingPathComponent("projects/\(projectID)")
     }
     
     public let version: String = "v1"
@@ -52,15 +52,28 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     @Path("locations")
     public var listLocations = Endpoint<Void, Schema.LocationList>()
     
+    @GET
+    @AbsolutePath({ context in
+        context.root.host.appendingPathComponent(context.root.documentName(forDocumentPath: context.input))
+    })
+    public var getDocumentAtPath = Endpoint<String, FirestoreDocument>()
+    
     @PATCH
     @AbsolutePath({ context in
-        context.root.host
-            .appendingPathComponent("\(context.root.version)")
-            .appendingPathComponent(try context.input.document.name.unwrap())
+        context.root.host.appendingPathComponent(try context.input.document.name.unwrap())
     })
     @Query(\.options.asQueryString)
     @Body(json: \.document)
     public var patchDocument = Endpoint<(document: FirestoreDocument, options: FirestorePatchDocumentOptions), Schema.LocationList>()
+}
+
+extension FirestoreInterface {
+    func documentName(forDocumentPath path: String) -> String {
+        let prefix = "projects/\(projectID)/databases/(default)/documents"
+        let path = String(path.dropPrefixIfPresent("/").dropSuffixIfPresent("/"))
+        
+        return prefix + "/" + String(path.dropPrefixIfPresent(prefix).dropPrefixIfPresent("/").dropSuffixIfPresent("/"))
+    }
 }
 
 extension FirestoreInterface.Schema {
