@@ -56,7 +56,10 @@ extension FirestoreProjectRepository {
     public func patch(_ document: FirestoreDocument, at path: String) -> some Task {
         var document = document
         
-        document.name = path
+        let prefix = "projects/\(interface.projectID)/databases/(default)/documents"
+        let path = String(path.dropPrefixIfPresent("/").dropSuffixIfPresent("/"))
+        
+        document.name = prefix + "/" + String(path.dropPrefixIfPresent(prefix).dropPrefixIfPresent("/").dropSuffixIfPresent("/"))
         
         return self.patchDocument((document, .init(updateMask: .allFieldKeys(of: document))))
     }

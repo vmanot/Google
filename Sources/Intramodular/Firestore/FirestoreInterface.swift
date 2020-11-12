@@ -54,8 +54,12 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     
     @PATCH
     @AbsolutePath({ context in
-        context.root.host.appendingPathComponent(try context.input.document.name.unwrap())
+        context.root.host
+            .appendingPathComponent("\(context.root.version)")
+            .appendingPathComponent(try context.input.document.name.unwrap())
     })
+    @Query(\.options.asQueryString)
+    @Body(json: \.document)
     public var patchDocument = Endpoint<(document: FirestoreDocument, options: FirestorePatchDocumentOptions), Schema.LocationList>()
 }
 
