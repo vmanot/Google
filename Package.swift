@@ -14,7 +14,7 @@ let package = Package(
         .library(name: "Google", targets: ["Google"])
     ],
     dependencies: [
-        .package(url: "git@github.com:vmanot/NetworkKit.git", .branch("master"))
+        .package(url: "https://github.com/vmanot/NetworkKit.git", .branch("master")),
     ],
     targets: [
         .target(
