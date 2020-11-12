@@ -47,11 +47,17 @@ extension FirestoreProjectRepository {
         .init(RESTfulResource(repository: self, get: \.listCollectionsInDocument, from: document))
     }
     
+    @discardableResult
     public func patch(_ document: FirestoreDocument) -> some Task {
-        run(\.patchDocument, with: (document, .init(updateMask: .allFieldKeys(of: document))))
+        return self.patchDocument((document, .init(updateMask: .allFieldKeys(of: document))))
     }
     
-    public func patch(_ document: FirestoreDocument, at location: String) -> some Task {
-        run(\.patchDocumentByLocation, with: (location, document, .init(updateMask: .allFieldKeys(of: document))))
+    @discardableResult
+    public func patch(_ document: FirestoreDocument, at path: String) -> some Task {
+        var document = document
+        
+        document.name = path
+        
+        return self.patchDocument((document, .init(updateMask: .allFieldKeys(of: document))))
     }
 }

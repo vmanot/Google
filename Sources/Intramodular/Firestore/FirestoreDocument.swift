@@ -6,7 +6,7 @@ import Foundation
 import Swift
 
 public struct FirestoreDocument: Hashable {
-    public let name: String?
+    public var name: String?
     public let fields: [String: Value]
     public let createTime: Date
     public let updateTime: Date

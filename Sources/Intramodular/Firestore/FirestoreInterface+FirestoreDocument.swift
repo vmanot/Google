@@ -22,7 +22,7 @@ public struct FirestorePatchDocumentOptions {
         for fieldPath in updateMask.fieldPaths {
             queryString += (queryString.isEmpty ? "" : "&") + "updateMask.fieldPaths=\(fieldPath)"
         }
-
+        
         return queryString
     }
     
