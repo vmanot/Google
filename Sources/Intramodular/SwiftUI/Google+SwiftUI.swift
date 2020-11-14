@@ -42,7 +42,7 @@ public struct FirestoreDocumentList<RowContent: View>: View {
             rowContent(document)
         }
         .onAppear {
-            data.beginResolutionIfNecessary()
+            data.fetchIfNecessary()
         }
     }
 }
@@ -61,7 +61,7 @@ public struct FirestoreCollectionList: View {
             }
         }
         .onAppear {
-            data.beginResolutionIfNecessary()
+            data.fetchIfNecessary()
         }
     }
 }
