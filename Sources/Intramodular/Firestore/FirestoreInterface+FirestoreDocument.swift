@@ -10,20 +10,11 @@ public struct FirestorePatchDocumentOptions: Hashable {
     public var mask: FirestoreDocumentMask?
     public var currentDocument: FirestoreDocumentPrecondition?
     
-    public var asQueryString: String {
-        var queryString = ""
-        if let mask = self.mask {
-            queryString += mask.asJsonString()
-        }
-        if let currentDocument = self.currentDocument {
-            queryString += (queryString.isEmpty ? "" : "&") + currentDocument.asQueryString
-        }
-        
-        for fieldPath in updateMask.fieldPaths {
-            queryString += (queryString.isEmpty ? "" : "&") + "updateMask.fieldPaths=\(fieldPath)"
-        }
-        
-        return queryString
+    public var queryItems: [URLQueryItem] {
+        []
+            + (mask?.queryItems ?? [])
+            + (currentDocument?.queryItems ?? [])
+            + updateMask.fieldPaths.map({ URLQueryItem(name: "updateMask.fieldPaths", value: $0) })
     }
     
     public init(updateMask: FirestoreDocumentMask) {
@@ -34,16 +25,8 @@ public struct FirestorePatchDocumentOptions: Hashable {
 public struct FirestoreDocumentMask: Codable, Hashable {
     public let fieldPaths: [String]
     
-    func asJsonString() -> String {
-        let jsonData = try? JSONEncoder().encode(self)
-        guard let jsonString = jsonData.flatMap({ String(data: $0, encoding: .ascii) }) else {
-            fatalError("ERROR - Cannot encode mask property into JSON string")
-        }
-        return jsonString
-    }
-    
-    public var asQueryString: String {
-        return "mask=\(asJsonString())"
+    public var queryItems: [URLQueryItem] {
+        [.init(name: "mask", value: String(data: try! JSONEncoder().encode(self), encoding: .ascii))]
     }
     
     public static func allFieldKeys(of document: FirestoreDocument) -> FirestoreDocumentMask {
@@ -55,12 +38,12 @@ public enum FirestoreDocumentPrecondition: Hashable {
     case exists(Bool)
     case updateTime(Date)
     
-    public var asQueryString: String {
+    public var queryItems: [URLQueryItem] {
         switch self {
             case .exists(let exists):
-                return "exists=\(exists)"
+                return [.init(name: "exists", value: "\(exists)")]
             case .updateTime(let updateTime):
-                return "updateTime=\(FirestoreDocument.serialize(date: updateTime))"
+                return [.init(name: "updateTime", value: FirestoreDocument.serialize(date: updateTime))]
         }
     }
 }

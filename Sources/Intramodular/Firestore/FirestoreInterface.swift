@@ -62,7 +62,7 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     @AbsolutePath({ context in
         context.root.host.appendingPathComponent(try context.input.document.name.unwrap())
     })
-    @Query(\.options.asQueryString)
+    @Query(\.options.queryItems)
     @Body(json: \.document)
     public var patchDocument = Endpoint<(document: FirestoreDocument, options: FirestorePatchDocumentOptions), Schema.LocationList>()
 }
