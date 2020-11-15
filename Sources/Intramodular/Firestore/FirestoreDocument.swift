@@ -207,7 +207,7 @@ extension FirestoreDocument {
     }
 }
 
-// MARK: - Protocol Implementations -
+// MARK: - Protocol Conformances -
 
 extension FirestoreDocument: Codable {
     enum CodingKeys: CodingKey {
