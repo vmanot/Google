@@ -34,29 +34,29 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     
     @GET
     @Path({ "databases/(default)/documents/\($0.input):listCollectionIds" })
-    public var listCollections = Endpoint<String, Schema.CollectionList>()
+    public var listCollections = Endpoint<String, Schema.CollectionList, (Void)>()
     
     @GET
     @AbsolutePath({ context in
         context.root.host.appendingPathComponent(try context.input.name.unwrap())
     })
-    public var listCollectionsInDocument = Endpoint<FirestoreDocument, Schema.CollectionList>()
+    public var listCollectionsInDocument = Endpoint<FirestoreDocument, Schema.CollectionList, Void>()
     
     @GET
     @Path({ context in
         "databases/(default)/documents/\(context.input)"
     })
-    public var listDocumentsInCollection = Endpoint<String, Schema.DocumentList>()
+    public var listDocumentsInCollection = Endpoint<String, Schema.DocumentList, Void>()
     
-    @GET
+    @GET(Schema.LocationList.self)
     @Path("locations")
-    public var listLocations = Endpoint<Void, Schema.LocationList>()
+    public var listLocations = Endpoint()
     
     @GET
     @AbsolutePath({ context in
         context.root.host.appendingPathComponent(context.root.documentName(forDocumentPath: context.input))
     })
-    public var getDocumentAtPath = Endpoint<String, FirestoreDocument>()
+    public var getDocumentAtPath = Endpoint<String, FirestoreDocument, Void>()
     
     @PATCH
     @AbsolutePath({ context in
@@ -64,7 +64,7 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     })
     @Query(\.options.queryItems)
     @Body(json: \.document)
-    public var patchDocument = Endpoint<(document: FirestoreDocument, options: FirestorePatchDocumentOptions), Schema.LocationList>()
+    public var patchDocument = Endpoint<(document: FirestoreDocument, options: FirestorePatchDocumentOptions), Schema.LocationList, Void>()
 }
 
 extension FirestoreInterface {
@@ -88,19 +88,31 @@ extension FirestoreInterface.Schema {
         public let locations: [Location]?
     }
     
-    public struct CollectionList: Decodable {
+    public struct CollectionList: Decodable, TokenPaginatedRequestResponse {
+        public typealias PaginatedListRepresentation = TokenPaginatedList<PageTokenValue<String>, String>
+        
         public let collectionIds: [String]?
-        public let nextPageToken: String?
+        public let nextPageToken: PageToken?
+        
+        public func convert() throws -> PaginatedListRepresentation.Partial {
+            .init(items: collectionIds, nextToken: nextPageToken)
+        }
     }
     
-    public struct DocumentList: Decodable {
+    public struct DocumentList: Decodable, TokenPaginatedRequestResponse {
+        public typealias PaginatedListRepresentation = TokenPaginatedList<PageTokenValue<String>, FirestoreDocument>
+        
         public let documents: [FirestoreDocument]?
-        public let nextPageToken: String?
+        public let nextPageToken: PageToken?
+        
+        public func convert() throws -> PaginatedListRepresentation.Partial {
+            .init(items: documents, nextToken: nextPageToken)
+        }
     }
 }
 
 extension FirestoreInterface {
-    public final class Endpoint<Input, Output: Decodable>: BaseHTTPEndpoint<FirestoreInterface, Input, Output> {
+    public final class Endpoint<Input, Output: Decodable, Options>: BaseHTTPEndpoint<FirestoreInterface, Input, Output, Options> {
         override public func buildRequestBase(
             from input: Input,
             context: BuildRequestContext
