@@ -1,14 +1,14 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 
 import PackageDescription
 
 let package = Package(
     name: "Google",
     platforms: [
-        .iOS("14.0"),
-        .macOS("11.0"),
-        .tvOS("14.0"),
-        .watchOS("7.0")
+        .iOS(.v14),
+        .macOS(.v11),
+        .tvOS(.v14),
+        .watchOS(.v7)
     ],
     products: [
         .library(name: "Google", targets: ["Google"])

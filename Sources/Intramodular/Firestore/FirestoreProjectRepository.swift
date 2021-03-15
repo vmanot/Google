@@ -30,11 +30,12 @@ open class FirestoreProjectRepository: HTTPRepository {
                 "https://www.googleapis.com/auth/cloud-platform"
             ])
             .receiveOnMainQueue()
+            .discardError()
             .publish(to: \.token, on: self)
             .then {
                 self.objectWillChange.send()
             }
-            .eraseToTask()
+            .convertToTask()
             .store(in: session.cancellables)
             .then {
                 $0.start()

@@ -2,6 +2,7 @@
 // Copyright (c) Vatsal Manot
 //
 
+import Compute
 import NetworkKit
 import Swallow
 
@@ -37,29 +38,38 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     public var listCollections = Endpoint<String, Schema.CollectionList, (Void)>()
     
     @GET
-    @AbsolutePath({ context in
+    @AbsolutePath(fromContext: { context in
         context.root.host.appendingPathComponent(try context.input.name.unwrap())
     })
     public var listCollectionsInDocument = Endpoint<FirestoreDocument, Schema.CollectionList, Void>()
+    
+    public struct ListDocumentsInCollectionOptions: SpecifiesPaginationCursor, Initiable {
+        public var paginationCursor: PaginationCursor?
+        
+        public init() {
+            
+        }
+    }
     
     @GET
     @Path({ context in
         "databases/(default)/documents/\(context.input)"
     })
-    public var listDocumentsInCollection = Endpoint<String, Schema.DocumentList, Void>()
+    @Query("pageToken", fromContext: \.options.paginationCursor?.stringValue)
+    public var listDocumentsInCollection = Endpoint<String, Schema.DocumentList, ListDocumentsInCollectionOptions>()
     
     @GET(Schema.LocationList.self)
     @Path("locations")
     public var listLocations = Endpoint()
     
     @GET
-    @AbsolutePath({ context in
+    @AbsolutePath(fromContext: { context in
         context.root.host.appendingPathComponent(context.root.documentName(forDocumentPath: context.input))
     })
     public var getDocumentAtPath = Endpoint<String, FirestoreDocument, Void>()
     
     @PATCH
-    @AbsolutePath({ context in
+    @AbsolutePath(fromContext: { context in
         context.root.host.appendingPathComponent(try context.input.document.name.unwrap())
     })
     @Query(\.options.queryItems)
@@ -88,25 +98,21 @@ extension FirestoreInterface.Schema {
         public let locations: [Location]?
     }
     
-    public struct CollectionList: Decodable, TokenPaginatedRequestResponse {
-        public typealias PaginatedListRepresentation = TokenPaginatedList<PageTokenValue<String>, String>
+    public struct CollectionList: Decodable, PaginatedRequestResponse {
+        public var collectionIds: [String]?
+        public var nextPageToken: String?
         
-        public let collectionIds: [String]?
-        public let nextPageToken: PageToken?
-        
-        public func convert() throws -> PaginatedListRepresentation.Partial {
-            .init(items: collectionIds, nextToken: nextPageToken)
+        public func convert() throws -> Partial<TokenPaginatedList<String>> {
+            .init(.init(items: collectionIds, nextToken: nextPageToken.map(PaginationCursor.string)))
         }
     }
     
-    public struct DocumentList: Decodable, TokenPaginatedRequestResponse {
-        public typealias PaginatedListRepresentation = TokenPaginatedList<PageTokenValue<String>, FirestoreDocument>
+    public struct DocumentList: Decodable, PaginatedRequestResponse {
+        public var documents: [FirestoreDocument]?
+        public var nextPageToken: String?
         
-        public let documents: [FirestoreDocument]?
-        public let nextPageToken: PageToken?
-        
-        public func convert() throws -> PaginatedListRepresentation.Partial {
-            .init(items: documents, nextToken: nextPageToken)
+        public func convert() throws -> Partial<TokenPaginatedList<FirestoreDocument>> {
+            .init(.init(items: documents, nextToken: nextPageToken.map(PaginationCursor.string)))
         }
     }
 }
@@ -133,7 +139,7 @@ extension FirestoreInterface {
         ) throws -> Output {
             try response.validate()
             
-            return try response.decodeJSON(Output.self)
+            return try response.decode(Output.self, using: JSONDecoder())
         }
     }
 }
