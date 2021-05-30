@@ -98,21 +98,21 @@ extension FirestoreInterface.Schema {
         public let locations: [Location]?
     }
     
-    public struct CollectionList: Decodable, PaginatedRequestResponse {
+    public struct CollectionList: Decodable, PaginatedResponse {
         public var collectionIds: [String]?
         public var nextPageToken: String?
         
-        public func convert() throws -> Partial<TokenPaginatedList<String>> {
-            .init(.init(items: collectionIds, nextToken: nextPageToken.map(PaginationCursor.string)))
+        public func convert() throws -> Partial<CursorPaginatedList<String>> {
+            .init(.init(items: collectionIds, nextCursor: nextPageToken.map(PaginationCursor.string)))
         }
     }
     
-    public struct DocumentList: Decodable, PaginatedRequestResponse {
+    public struct DocumentList: Decodable, PaginatedResponse {
         public var documents: [FirestoreDocument]?
         public var nextPageToken: String?
         
-        public func convert() throws -> Partial<TokenPaginatedList<FirestoreDocument>> {
-            .init(.init(items: documents, nextToken: nextPageToken.map(PaginationCursor.string)))
+        public func convert() throws -> Partial<CursorPaginatedList<FirestoreDocument>> {
+            .init(.init(items: documents, nextCursor: nextPageToken.map(PaginationCursor.string)))
         }
     }
 }
