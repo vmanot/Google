@@ -84,10 +84,8 @@ extension _FirestoreEncoder: Encoder {
     }
 }
 
-protocol FirestoreEncodingContainer: class {
-    
+protocol FirestoreEncodingContainer: AnyObject {
     var value: FirestoreDocument.Value? { get }
-
 }
 
 fileprivate extension Dictionary where Key == String, Value == FirestoreDocument.Value {
