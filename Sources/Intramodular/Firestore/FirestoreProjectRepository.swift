@@ -6,46 +6,44 @@ import NetworkKit
 import Swallow
 
 open class FirestoreProjectRepository: HTTPRepository {
-    @Published public var token: GoogleServiceTokenProvider.Token?
-    @Published public var projectID: String
+    @Published private var token: GoogleServiceTokenProvider.Token?
+    @Published private var projectID: String
+    @Published private var tokenProvider: GoogleServiceTokenProvider?
     
     public var interface: FirestoreInterface {
         .init(token: token, projectID: projectID)
     }
     
-    @Resource(get: \.listLocations) public var locations
-    @Resource(get: \.listCollections) public var collections
-    
     public init(projectID: String) {
         self.projectID = projectID
-        
-        collections = nil
     }
     
     @discardableResult
     public func resolveToken(from credentials: GoogleServiceAccountKey) -> some Task {
-        GoogleServiceTokenProvider(serviceAccountCredentials: credentials)
+        self.tokenProvider = GoogleServiceTokenProvider(serviceAccountCredentials: credentials)
+        
+        return tokenProvider!
             .requestToken(scopes: [
                 "https://www.googleapis.com/auth/datastore",
                 "https://www.googleapis.com/auth/cloud-platform"
             ])
             .receiveOnMainQueue()
-            .discardError()
-            .publish(to: \.token, on: self)
-            .then {
-                self.objectWillChange.send()
+            .handleOutput {
+                self.token = $0
             }
             .convertToTask()
-            .store(in: session.cancellables)
-            .then {
-                $0.start()
-            }
     }
 }
 
 extension FirestoreProjectRepository {
     public func collectionList(for document: FirestoreDocument) -> AnyRepositoryResource<FirestoreProjectRepository, FirestoreInterface.Schema.CollectionList> {
         .init(RESTfulResource(repository: self, get: \.listCollectionsInDocument, from: document))
+    }
+    
+    public func createDocumentWithName(_ name: String, at path: String, withFields fields: [String: String]) -> some Task {
+        let document = FirestoreDocument(name: nil, fields: fields.mapValues({ .stringValue($0) }))
+        
+        return self.createDocument((path, document, .init(documentID: name, mask: nil)))
     }
     
     @discardableResult

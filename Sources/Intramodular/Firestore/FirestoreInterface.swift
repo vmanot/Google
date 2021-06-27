@@ -3,11 +3,14 @@
 //
 
 import Compute
+import Data
 import NetworkKit
 import Swallow
 
 public struct FirestoreInterface: RESTfulHTTPInterface {
-    public struct Schema { }
+    public struct Schema {
+        
+    }
     
     public var host: URL {
         URL(string: "https://firestore.googleapis.com/\(version)")!
@@ -17,7 +20,7 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
         host.appendingPathComponent("projects/\(projectID)")
     }
     
-    public let version: String = "v1"
+    public let version: String = "v1beta1"
     public let token: GoogleServiceTokenProvider.Token?
     public let projectID: String
     
@@ -62,6 +65,19 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     @Path("locations")
     public var listLocations = Endpoint()
     
+    // MARK: Document
+    
+    @POST
+    @AbsolutePath(fromContext: { context in
+        context.root.host
+            .appendingPathComponent("projects/\(context.root.projectID)/databases/(default)")
+            .appendingPathComponent("documents")
+            .appendingPathComponent(context.input.collectionID)
+    })
+    @Query(\.options.queryItems)
+    @Body(json: \.document)
+    public var createDocument = Endpoint<(collectionID: String, document: FirestoreDocument, options: FirestoreCreateDocumentOptions), JSON, Void>()
+    
     @GET
     @AbsolutePath(fromContext: { context in
         context.root.host.appendingPathComponent(context.root.documentName(forDocumentPath: context.input))
@@ -70,7 +86,7 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     
     @PATCH
     @AbsolutePath(fromContext: { context in
-        context.root.host.appendingPathComponent(try context.input.document.name.unwrap())
+        context.root.host.appendingPathComponent(context.root.documentName(forDocumentPath: try context.input.document.name.unwrap()))
     })
     @Query(\.options.queryItems)
     @Body(json: \.document)
@@ -80,9 +96,11 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
 extension FirestoreInterface {
     func documentName(forDocumentPath path: String) -> String {
         let prefix = "projects/\(projectID)/databases/(default)/documents"
-        let path = String(path.dropPrefixIfPresent("/").dropSuffixIfPresent("/"))
+        let path = path
+            .trim(prefix: "/", suffix: "/")
+            .dropPrefixIfPresent(prefix)
         
-        return prefix + "/" + String(path.dropPrefixIfPresent(prefix).dropPrefixIfPresent("/").dropSuffixIfPresent("/"))
+        return prefix + "/" + String(String(path).trim(prefix: "/", suffix: "/"))
     }
 }
 
@@ -123,21 +141,21 @@ extension FirestoreInterface {
             from input: Input,
             context: BuildRequestContext
         ) throws -> HTTPRequest {
-            if let token = context.root.token?.accessToken {
-                return try super.buildRequestBase(from: input, context: context)
-                    .header(.authorization(.bearer, token))
-                    .header(.contentType(.json))
-            } else {
-                return try super.buildRequestBase(from: input, context: context)
-                    .header(.contentType(.json))
-            }
+            try super.buildRequestBase(from: input, context: context)
+                .header(.authorization(.bearer, context.root.token.unwrap().accessToken))
+                .header(.contentType(.json))
         }
         
         override public func decodeOutputBase(
             from response: Request.Response,
             context: DecodeOutputContext
         ) throws -> Output {
-            try response.validate()
+            do {
+                try response.validate()
+            } catch {
+                print(context.request.url)
+                print(response)
+            }
             
             return try response.decode(Output.self, using: JSONDecoder())
         }

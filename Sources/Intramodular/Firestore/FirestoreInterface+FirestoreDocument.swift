@@ -5,6 +5,22 @@
 import NetworkKit
 import Swallow
 
+public struct FirestoreCreateDocumentOptions: Hashable {
+    public var documentID: String?
+    public var mask: FirestoreDocumentMask?
+    
+    public var queryItems: [URLQueryItem] {
+        []
+        + (documentID.map({ [URLQueryItem(name: "documentId", value: $0)] }) ?? [])
+        + (mask?.queryItems ?? [])
+    }
+    
+    public init(documentID: String?, mask: FirestoreDocumentMask?) {
+        self.documentID = documentID
+        self.mask = mask
+    }
+}
+
 public struct FirestorePatchDocumentOptions: Hashable {
     public var updateMask: FirestoreDocumentMask
     public var mask: FirestoreDocumentMask?

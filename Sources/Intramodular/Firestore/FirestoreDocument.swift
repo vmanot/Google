@@ -21,6 +21,10 @@ public struct FirestoreDocument: Hashable {
         self.createTime = Date()
         self.updateTime = Date()
     }
+    
+    public init(name: String? = .none, fields: [String: String]) {
+        self.init(name: name, fields: fields.mapValues({ .stringValue($0) }))
+    }
 }
 
 extension FirestoreDocument {

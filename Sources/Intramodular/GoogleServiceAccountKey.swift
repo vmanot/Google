@@ -7,7 +7,7 @@ import Swift
 public struct GoogleServiceAccountKey: Decodable {
     enum CodingKeys: String, CodingKey {
         case type = "type"
-        case projectId = "project_id"
+        case projectID = "project_id"
         case privateKeyId = "private_key_id"
         case privateKey = "private_key"
         case clientEmail = "client_email"
@@ -19,7 +19,7 @@ public struct GoogleServiceAccountKey: Decodable {
     }
     
     public let type: String
-    public let projectId: String
+    public let projectID: String
     public let privateKeyId: String
     public let privateKey: String
     public let clientEmail: String
