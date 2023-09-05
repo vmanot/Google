@@ -1,10 +1,13 @@
+//
+// Copyright (c) Vatsal Manot
+//
+
+
 import Foundation
 import Swallow
 
 extension _FirestoreEncoder {
-    
     final class KeyedContainer<Key> where Key: CodingKey {
-    
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
         
@@ -18,9 +21,7 @@ extension _FirestoreEncoder {
         func nestedCodingPath(forKey key: CodingKey) -> [CodingKey] {
             return self.codingPath + [key]
         }
-        
-    }
-    
+    }    
 }
 
 extension _FirestoreEncoder.KeyedContainer: KeyedEncodingContainerProtocol {
@@ -36,14 +37,14 @@ extension _FirestoreEncoder.KeyedContainer: KeyedEncodingContainerProtocol {
     
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
         let container = _FirestoreEncoder.UnkeyedContainer(codingPath: self.nestedCodingPath(forKey: key), userInfo: self.userInfo)
-        self.storage[AnyCodingKey(key)] = container
+        self.storage[AnyCodingKey(erasing: key)] = container
         
         return container
     }
     
     func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Key) -> KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey {
         let container = _FirestoreEncoder.KeyedContainer<NestedKey>(codingPath: self.nestedCodingPath(forKey: key), userInfo: self.userInfo)
-        self.storage[AnyCodingKey(key)] = container
+        self.storage[AnyCodingKey(erasing: key)] = container
         
         return KeyedEncodingContainer(container)
     }
@@ -76,7 +77,7 @@ fileprivate extension _FirestoreEncoder.KeyedContainer {
     
     func nestedSingleValueContainer(forKey key: Key) -> SingleValueEncodingContainer {
         let container = _FirestoreEncoder.SingleValueContainer(codingPath: self.nestedCodingPath(forKey: key), userInfo: self.userInfo)
-        self.storage[AnyCodingKey(key)] = container
+        self.storage[AnyCodingKey(erasing: key)] = container
         return container
     }
     

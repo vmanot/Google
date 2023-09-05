@@ -1,7 +1,10 @@
+//
+// Copyright (c) Vatsal Manot
+//
+
 import Foundation
 
 extension _FirestoreDecoder {
-    
     final class SingleValueContainer {
         
         var codingPath: [CodingKey]

@@ -46,7 +46,7 @@ public struct FirestoreInterface: RESTfulHTTPInterface {
     })
     public var listCollectionsInDocument = Endpoint<FirestoreDocument, Schema.CollectionList, Void>()
     
-    public struct ListDocumentsInCollectionOptions: SpecifiesPaginationCursor, Initiable {
+    public struct ListDocumentsInCollectionOptions: CursorPaginated, Initiable {
         public var paginationCursor: PaginationCursor?
         
         public init() {
@@ -120,7 +120,7 @@ extension FirestoreInterface.Schema {
         public var collectionIds: [String]?
         public var nextPageToken: String?
         
-        public func convert() throws -> Partial<CursorPaginatedList<String>> {
+        public func convert() throws -> PartialOf<CursorPaginatedList<String>> {
             .init(.init(items: collectionIds, nextCursor: nextPageToken.map(PaginationCursor.string)))
         }
     }
@@ -129,7 +129,7 @@ extension FirestoreInterface.Schema {
         public var documents: [FirestoreDocument]?
         public var nextPageToken: String?
         
-        public func convert() throws -> Partial<CursorPaginatedList<FirestoreDocument>> {
+        public func convert() throws -> PartialOf<CursorPaginatedList<FirestoreDocument>> {
             .init(.init(items: documents, nextCursor: nextPageToken.map(PaginationCursor.string)))
         }
     }

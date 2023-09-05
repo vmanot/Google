@@ -25,43 +25,37 @@ public struct FirestoreDocumentFieldView: View {
 }
 
 public struct FirestoreDocumentList<RowContent: View>: View {
-    @StateObject private var data: AnyRepositoryResource<FirestoreProjectRepository, FirestoreInterface.Schema.DocumentList>
+    private var data: FirestoreInterface.Schema.DocumentList
     
     private let rowContent: (FirestoreDocument) -> RowContent
     
     public init(
-        _ data: @autoclosure @escaping () -> AnyRepositoryResource<FirestoreProjectRepository, FirestoreInterface.Schema.DocumentList>,
+        _ data: FirestoreInterface.Schema.DocumentList,
         _ rowContent: @escaping (FirestoreDocument) -> RowContent
     ) {
-        self._data = .init(wrappedValue: data())
+        self.data = data
         self.rowContent = rowContent
     }
     
     public var body: some View {
-        List(data.latestValue?.documents ?? [], id: \.self) { document in
+        List(data.documents ?? [], id: \.self) { document in
             rowContent(document)
-        }
-        .onAppear {
-            data.fetch()
         }
     }
 }
 
 public struct FirestoreCollectionList: View {
-    public let data: AnyRepositoryResource<FirestoreProjectRepository, FirestoreInterface.Schema.CollectionList>
+    public let data: FirestoreInterface.Schema.CollectionList
     
-    public init(_ data: AnyRepositoryResource<FirestoreProjectRepository, FirestoreInterface.Schema.CollectionList>) {
+    public init(_ data: FirestoreInterface.Schema.CollectionList) {
         self.data = data
     }
     
     public var body: some View {
-        List(data.latestValue?.collectionIds ?? [], id: \.self) { collectionId in
+        List(data.collectionIds ?? [], id: \.self) { collectionId in
             NavigationLink(collectionId) {
                 Text(collectionId)
             }
-        }
-        .onAppear {
-            data.fetch()
         }
     }
 }

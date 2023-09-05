@@ -32,22 +32,13 @@ public struct GoogleServiceTokenProvider {
         }
     }
     
-    public func requestToken(scopes: [String]) -> AnyPublisher<Token, Error> {
-        do {
-            let request = try HTTPRequest(url: serviceAccountCredentials.tokenURI)
-                .unwrap()
-                .method(.post)
-                .header(.contentType(.json))
-                .jsonBody(["grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion": try JWT.create(using: self.serviceAccountCredentials, for: scopes)])
-            
-            return session
-                .task(with: request)
-                .successPublisher
-                .map(\.data)
-                .decode(type: Token.self, decoder: JSONDecoder())
-                .eraseToAnyPublisher()
-        } catch {
-            return .failure(error)
-        }
+    public func requestToken(scopes: [String]) async throws -> Token {
+        let request = try HTTPRequest(url: serviceAccountCredentials.tokenURI)
+            .unwrap()
+            .method(.post)
+            .header(.contentType(.json))
+            .jsonBody(["grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion": try JWT.create(using: self.serviceAccountCredentials, for: scopes)])
+        
+        return try await JSONDecoder().decode(Token.self, from: session.task(with: request).value.data)
     }
 }

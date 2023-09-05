@@ -1,36 +1,40 @@
-import Foundation
+//
+// Copyright (c) Vatsal Manot
+//
 
-final public class FirestoreDecoder {
-    
-    public init() { }
-    
-    public func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
+import Combine
+import Foundation
+import Swallow
+
+final public class FirestoreDecoder: Initiable, TopLevelDecoder {
+    public typealias Input = Data
+
+    public func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
         let document = try JSONDecoder().decode(FirestoreDocument.self, from: data)
         let decoder = _FirestoreDecoder(document: document)
         return try T(from: decoder)
     }
     
-    public func decode<T>(_ type: T.Type, from document: FirestoreDocument) throws -> T where T : Decodable {
+    public func decode<T: Decodable>(_ type: T.Type, from document: FirestoreDocument) throws -> T {
         let decoder = _FirestoreDecoder(document: document)
+        
         return try T(from: decoder)
     }
     
+    public init() {
+        
+    }
 }
 
 final class _FirestoreDecoder {
-    
     enum Storage {
-        
         case document(FirestoreDocument)
         case array(FirestoreDocument.ArrayValue)
         case value(FirestoreDocument.Value)
-        
     }
     
     var codingPath: [CodingKey] = []
-    
     var userInfo: [CodingUserInfoKey : Any] = [:]
-    
     var container: FirestoreDecodingContainer?
     
     fileprivate let storage: Storage
@@ -48,14 +52,11 @@ final class _FirestoreDecoder {
             self.storage = .array(array)
         } else {
             self.storage = .value(value)
-            
         }
     }
-    
 }
 
 extension _FirestoreDecoder: Decoder {
-    
     fileprivate func assertCanCreateContainer() {
         precondition(self.container == nil)
     }
@@ -112,7 +113,5 @@ extension _FirestoreDecoder: Decoder {
 }
 
 protocol FirestoreDecodingContainer {
-    
-    var value: FirestoreDocument.Value { get }
-    
+    var value: FirestoreDocument.Value { get }    
 }

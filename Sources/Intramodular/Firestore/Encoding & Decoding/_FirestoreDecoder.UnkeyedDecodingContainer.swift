@@ -1,10 +1,12 @@
+//
+// Copyright (c) Vatsal Manot
+//
+
 import Foundation
 import Swallow
 
 extension _FirestoreDecoder {
-    
     final class UnkeyedContainer {
-        
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
         var currentIndex: Int = 0
@@ -15,17 +17,14 @@ extension _FirestoreDecoder {
             codingPath: [CodingKey],
             userInfo: [CodingUserInfoKey : Any],
             arrayValue: FirestoreDocument.ArrayValue) {
-            self.codingPath = codingPath
-            self.userInfo = userInfo
-            self.arrayValue = arrayValue
-        }
-        
+                self.codingPath = codingPath
+                self.userInfo = userInfo
+                self.arrayValue = arrayValue
+            }
     }
-    
 }
 
 extension _FirestoreDecoder.UnkeyedContainer: UnkeyedDecodingContainer {
-    
     var count: Int? {
         return arrayValue.values?.count
     }
@@ -36,7 +35,6 @@ extension _FirestoreDecoder.UnkeyedContainer: UnkeyedDecodingContainer {
         }
         return currentIndex >= count
     }
-    
     
     func decodeNil() throws -> Bool {
         defer {
@@ -271,15 +269,12 @@ extension _FirestoreDecoder.UnkeyedContainer: UnkeyedDecodingContainer {
 }
 
 extension _FirestoreDecoder.UnkeyedContainer: FirestoreDecodingContainer {
-    
     var value: FirestoreDocument.Value {
         return .arrayValue(arrayValue)
     }
-    
 }
 
 fileprivate extension _FirestoreDecoder.UnkeyedContainer {
-    
     func currentValue() throws -> FirestoreDocument.Value {
         guard let values = arrayValue.values, currentIndex < values.count else {
             throw DecodingError.dataCorruptedError(in: self, debugDescription: "Cannot decode value from empty array value.")
@@ -290,5 +285,4 @@ fileprivate extension _FirestoreDecoder.UnkeyedContainer {
     var nestedCodingPath: [CodingKey] {
         return codingPath + [AnyCodingKey(intValue: currentIndex)]
     }
-    
 }

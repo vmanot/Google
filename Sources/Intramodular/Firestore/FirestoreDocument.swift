@@ -181,7 +181,9 @@ extension FirestoreDocument {
         return formatter.string(from:date)
     }
     
-    static func deserialize(date serializedDate: String) -> Date? {
+    static func deserialize(
+        date serializedDate: String
+    ) -> Date? {
         let formatter = DateFormatter()
         formatter.dateFormat = FirestoreDocument.dateFormat
         if let date = formatter.date(from: serializedDate) {
@@ -192,7 +194,10 @@ extension FirestoreDocument {
         }
     }
     
-    static func decodeDate(forKey key: CodingKeys, container: KeyedDecodingContainer<CodingKeys>) throws -> Date {
+    static func decodeDate(
+        forKey key: CodingKeys,
+        container: KeyedDecodingContainer<CodingKeys>
+    ) throws -> Date {
         let dateString = try container.decode(String.self, forKey: key)
         
         guard let date = FirestoreDocument.deserialize(date: dateString) else {
@@ -202,7 +207,10 @@ extension FirestoreDocument {
         return date
     }
     
-    static func filterSkipFields(_ skipFields: Set<String>, property: String) -> Set<String> {
+    static func filterSkipFields(
+        _ skipFields: Set<String>,
+        property: String
+    ) -> Set<String> {
         return Set(
             skipFields
                 .filter({ !$0.starts(with: "\(property).") })

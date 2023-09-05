@@ -7,7 +7,7 @@ import NetworkKit
 import Swallow
 
 extension FirebaseRemoteConfigAPI {
-    open class Repository: CancellablesHolder, HTTPRepository {
+    open class Repository: CancellablesHolder, HTTPClient {
         public let key: GoogleServiceAccountKey
         
         @Published var accessToken: String?
@@ -20,22 +20,11 @@ extension FirebaseRemoteConfigAPI {
             self.key = key
         }
         
-        public func resolve() -> some Task {
-            let task = GoogleServiceTokenProvider(serviceAccountCredentials: key)
-                .requestToken(scopes: [
-                    "https://www.googleapis.com/auth/cloud-platform",
-                    "https://www.googleapis.com/auth/firebase.remoteconfig"
-                ])
-                .receiveOnMainQueue()
-                .discardError()
-                .handleOutput {
-                    self.accessToken = $0.accessToken
-                }
-                .convertToTask()
-            
-            task.start()
-            
-            return task
+        public func resolve() async throws -> GoogleServiceTokenProvider.Token {
+            try await GoogleServiceTokenProvider(serviceAccountCredentials: key).requestToken(scopes: [
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/firebase.remoteconfig"
+            ])
         }
     }
 }

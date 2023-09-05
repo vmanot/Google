@@ -1,10 +1,12 @@
+//
+// Copyright (c) Vatsal Manot
+//
+
 import Foundation
 import Swallow
 
 extension _FirestoreEncoder {
-    
     final class UnkeyedContainer {
-        
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey : Any]
         
@@ -22,9 +24,7 @@ extension _FirestoreEncoder {
             self.codingPath = codingPath
             self.userInfo = userInfo
         }
-        
     }
-    
 }
 
 extension _FirestoreEncoder.UnkeyedContainer: UnkeyedEncodingContainer {

@@ -1,10 +1,12 @@
+//
+// Copyright (c) Vatsal Manot
+//
+
 import Foundation
 import Swallow
 
 extension _FirestoreDecoder {
-    
     final class KeyedContainer<Key> where Key: CodingKey {
-        
         var codingPath: [CodingKey]
         var userInfo: [CodingUserInfoKey: Any]
 
@@ -15,9 +17,7 @@ extension _FirestoreDecoder {
             self.userInfo = userInfo
             self.mapValue = mapValue
         }
-        
     }
-    
 }
 
 extension _FirestoreDecoder.KeyedContainer: KeyedDecodingContainerProtocol {
@@ -257,7 +257,7 @@ fileprivate extension _FirestoreDecoder.KeyedContainer {
     }
     
     func nestedCodingPath(for key: Key) -> [CodingKey] {
-        return codingPath + [AnyCodingKey(key)]
+        return codingPath + [AnyCodingKey(erasing: key)]
     }
     
 }

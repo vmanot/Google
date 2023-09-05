@@ -1,8 +1,15 @@
-import Foundation
+//
+// Copyright (c) Vatsal Manot
+//
 
-public class FirestoreEncoder {
-    
-    public init() {}
+import Combine
+import Foundation
+import Swallow
+
+public final class FirestoreEncoder: Initiable {
+    public init() {
+        
+    }
     
     public func encode(_ value: Encodable) throws -> Data {
         let encoder = _FirestoreEncoder()
@@ -89,9 +96,9 @@ protocol FirestoreEncodingContainer: AnyObject {
 }
 
 fileprivate extension Dictionary where Key == String, Value == FirestoreDocument.Value {
-    
     func filterFields(_ fieldPaths: [[String]]) -> [String : FirestoreDocument.Value] {
-        var result: [String : FirestoreDocument.Value] = [:]
+        var result: [String: FirestoreDocument.Value] = [:]
+        
         for (key, value) in self {
             let applicableFieldPaths = fieldPaths.filter { $0.first == key }
             if applicableFieldPaths.contains(where: { $0.count == 1 }) {
@@ -103,7 +110,7 @@ fileprivate extension Dictionary where Key == String, Value == FirestoreDocument
                 result[key] = value
             }
         }
+        
         return result
     }
-    
 }

@@ -27,7 +27,7 @@ public struct FirebaseRemoteConfigAPI: RESTfulHTTPInterface {
     })
     @Path({ context in "projects/\(context.root.projectID)/remoteConfig" })
     @Body(json: \.input.remoteConfig)
-    public var overrideRemoteConfig = Endpoint<(remoteConfig: JSON, etag: String?), Swallow.Empty, Void>()
+    public var overrideRemoteConfig = Endpoint<(remoteConfig: JSON, etag: String?), Swallow.None, Void>()
 }
 
 extension FirebaseRemoteConfigAPI {

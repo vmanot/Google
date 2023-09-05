@@ -27,10 +27,10 @@ public struct FirestorePatchDocumentOptions: Hashable {
     public var currentDocument: FirestoreDocumentPrecondition?
     
     public var queryItems: [URLQueryItem] {
-        []
-            + (mask?.queryItems ?? [])
-            + (currentDocument?.queryItems ?? [])
-            + updateMask.fieldPaths.map({ URLQueryItem(name: "updateMask.fieldPaths", value: $0) })
+        [URLQueryItem]()
+            .appending(contentsOf: mask?.queryItems ?? [])
+            .appending(contentsOf: currentDocument?.queryItems ?? [])
+            .appending(contentsOf: updateMask.fieldPaths.map({ URLQueryItem(name: "updateMask.fieldPaths", value: $0) }))
     }
     
     public init(updateMask: FirestoreDocumentMask) {
