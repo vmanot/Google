@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.9
 
 import PackageDescription
 
@@ -11,17 +11,20 @@ let package = Package(
         .watchOS(.v7)
     ],
     products: [
-        .library(name: "Google", targets: ["Google"])
+        .library(
+            name: "Google",
+            targets: ["Google"]
+        )
     ],
     dependencies: [
-        .package(url: "https://github.com/vmanot/Data.git", .branch("master")),
-        .package(url: "https://github.com/vmanot/NetworkKit.git", .branch("master")),
+        .package(url: "https://github.com/vmanot/CorePersistence.git", branch: "main"),
+        .package(url: "https://github.com/vmanot/NetworkKit.git", branch: "master"),
     ],
     targets: [
         .target(
             name: "Google",
             dependencies: [
-                "Data",
+                "CorePersistence",
                 "NetworkKit"
             ],
             path: "Sources"
